@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>محلل الذهب - آيفون</title>
+<style>
+body{margin:0;background:#0b1220;color:white;
+font-family:Arial,sans-serif;padding:18px}
+main{max-width:600px;margin:auto}
+h1{color:#f5c451}
+.card{background:#192437;padding:20px;
+border-radius:16px;margin:16px 0}
+.price{font-size:36px;color:#f5c451;font-weight:bold}
+small{color:#aab8cc}
+button{background:#f5c451;color:#151515;border:0;
+border-radius:10px;padding:13px;font-weight:bold}
+#error{color:#ff8585}
+</style>
+</head>
+<body>
+<main>
+<h1>🏆 محلل الذهب XAU/USD</h1>
+<div class="card">
+<h3>سعر الذهب الحقيقي</h3>
+<div id="price" class="price">بانتظار الاتصال</div>
+<p id="status">لم يتم جلب البيانات بعد</p>
+<small id="updated">آخر تحديث: —</small>
+</div>
+<div class="card">
+<h3>📊 التحليل الفني</h3>
+<p>الاتجاه: بانتظار بيانات تاريخية موثوقة</p>
+<p>RSI: غير متاح حاليًا</p>
+<p>التوقع: لا توجد بيانات كافية</p>
+</div>
+<button onclick="loadGold()">تحديث السعر</button>
+<p id="error"></p>
+</main>
+<script>
+async function loadGold(){
+ const price=document.getElementById("price");
+ const status=document.getElementById("status");
+ const error=document.getElementById("error");
+ error.textContent="";
+ status.textContent="جارٍ الاتصال بالمصدر...";
+ try{
+  const response=await fetch("/api/gold",{cache:"no-store"});
+  if(!response.ok)throw Error("تعذر جلب السعر");
+  const data=await response.json();
+  if(typeof data.price!=="number" ||
+     !Number.isFinite(data.price))
+     throw Error("بيانات السعر غير صالحة");
+  price.textContent=data.price.toLocaleString("en-US",
+   {minimumFractionDigits:2,maximumFractionDigits:2})+" $";
+  status.textContent="سعر XAU/USD من مصدر خارجي";
+  document.getElementById("updated").textContent=
+   "آخر تحديث: "+(data.updated_at||"غير متوفر");
+ }catch(e){
+  price.textContent="غير متاح";
+  status.textContent="لم يتم الاتصال";
+  error.textContent=e.message;
+ }
+}
+loadGold();
+</script>
+</body>
+</html>
