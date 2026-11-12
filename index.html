@@ -45,7 +45,7 @@ async function loadGold(){
  error.textContent="";
  status.textContent="جارٍ الاتصال بالمصدر...";
  try{
-  const response=await fetch("/api/gold",{cache:"no-store"});
+const response=await fetch("https://gold-analyzer-api.raedmasheh30.workers.dev/api/gold",{cache:"no-store"});
   if(!response.ok)throw Error("تعذر جلب السعر");
   const data=await response.json();
   if(typeof data.price!=="number" ||
