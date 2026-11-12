@@ -36,6 +36,15 @@ border-radius:10px;padding:13px;font-weight:bold}
 </div>
 <button onclick="loadGold()">تحديث السعر</button>
 <p id="error"></p>
+ 
+<div class="card">
+  <h3>🤖 التحليل الذكي للذهب</h3>
+  <p id="aiAnalysis">جاري جمع بيانات الذهب للتحليل...</p>
+  <small>
+    تحليل حسابي تعليمي، وليس توصية تداول.
+  </small>
+</div>
+
 </main>
 <script>
 async function loadGold(){
@@ -130,6 +139,57 @@ const goldChart = new Chart(
 
 updateGoldChart();
 setInterval(updateGoldChart, 60000);
+ 
+function calculateSMA(prices, period) {
+  if (prices.length < period) return null;
+  const recent = prices.slice(-period);
+  return recent.reduce((a, b) => a + b, 0) / period;
+}
+
+function calculateRSI(prices, period = 14) {
+  if (prices.length < period + 1) return null;
+  let gains = 0, losses = 0;
+
+  for (let i = prices.length - period; i < prices.length; i++) {
+    const change = prices[i] - prices[i - 1];
+    gains += Math.max(change, 0);
+    losses += Math.max(-change, 0);
+  }
+
+  if (gains === 0 && losses === 0) return 50;
+  if (losses === 0) return 100;
+  const rs = gains / losses;
+  return 100 - 100 / (1 + rs);
+}
+
+function analyzeGold() {
+  const prices = goldPrices.filter(Number.isFinite);
+  const element = document.getElementById("aiAnalysis");
+  if (!element) return;
+
+  if (prices.length < 20) {
+    element.textContent =
+      `بانتظار البيانات: ${prices.length}/20 قراءة.`;
+    return;
+  }
+
+  const sma5 = calculateSMA(prices, 5);
+  const sma20 = calculateSMA(prices, 20);
+  const rsi = calculateRSI(prices);
+
+  const trend = sma5 > sma20 ? "صاعد" :
+                sma5 < sma20 ? "هابط" : "جانبي";
+
+  element.textContent =
+    `الاتجاه: ${trend} | RSI: ${rsi.toFixed(1)} | ` +
+    `متوسط 5: ${sma5.toFixed(2)} | ` +
+    `متوسط 20: ${sma20.toFixed(2)}. ` +
+    `هذا تحليل حسابي وليس توقعًا مضمونًا.`;
+}
+
+setInterval(analyzeGold, 60000);
+analyzeGold();
+
 </script>
 
 </body>
