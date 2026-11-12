@@ -64,5 +64,73 @@ const response=await fetch("https://gold-analyzer-api.raedmasheh30.workers.dev/a
 }
 loadGold();
 </script>
+ 
+<section style="background:#192437;padding:20px;border-radius:16px;margin:20px auto;max-width:600px;text-align:center">
+  <h3 style="color:#f5c451">📈 الرسم البياني للذهب</h3>
+  <canvas id="goldChart" height="180"></canvas>
+  <p id="chartStatus">بانتظار بيانات الأسعار</p>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const goldPrices = [];
+const goldTimes = [];
+
+async function updateGoldChart() {
+  try {
+    const res = await fetch(
+      "https://gold-analyzer-api.raedmasheh30.workers.dev/api/gold",
+      {cache:"no-store"}
+    );
+    if (!res.ok) throw new Error("فشل الاتصال");
+
+    const data = await res.json();
+    if (typeof data.price !== "number") throw new Error("سعر غير صالح");
+
+    goldPrices.push(data.price);
+    goldTimes.push(new Date().toLocaleTimeString("ar-JO"));
+
+    if (goldPrices.length > 30) {
+      goldPrices.shift();
+      goldTimes.shift();
+    }
+
+    goldChart.update();
+    document.getElementById("chartStatus").textContent =
+      "آخر قراءة: " + data.price + " USD";
+  } catch (e) {
+    document.getElementById("chartStatus").textContent = e.message;
+  }
+}
+
+const goldChart = new Chart(
+  document.getElementById("goldChart"), {
+    type: "line",
+    data: {
+      labels: goldTimes,
+      datasets: [{
+        label: "سعر الذهب XAU/USD",
+        data: goldPrices,
+        borderColor: "#f5c451",
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {labels: {color: "white"}}
+      },
+      scales: {
+        x: {ticks: {color: "white"}},
+        y: {ticks: {color: "white"}}
+      }
+    }
+  }
+);
+
+updateGoldChart();
+setInterval(updateGoldChart, 60000);
+</script>
+
 </body>
 </html>
