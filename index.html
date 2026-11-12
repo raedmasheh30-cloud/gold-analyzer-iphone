@@ -82,8 +82,8 @@ loadGold();
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const goldPrices = [];
-const goldTimes = [];
+const goldPrices = JSON.parse(localStorage.getItem("goldPrices") || "[]");
+const goldTimes = JSON.parse(localStorage.getItem("goldTimes") || "[]");
 
 async function updateGoldChart() {
   try {
@@ -99,10 +99,16 @@ async function updateGoldChart() {
     goldPrices.push(data.price);
     goldTimes.push(new Date().toLocaleTimeString("ar-JO"));
 
-    if (goldPrices.length > 30) {
-      goldPrices.shift();
-      goldTimes.shift();
-    }
+
+if (goldPrices.length > 30) {
+    goldPrices.shift();
+    goldTimes.shift();
+}
+
+localStorage.setItem("goldPrices", JSON.stringify(goldPrices));
+localStorage.setItem("goldTimes", JSON.stringify(goldTimes));
+
+
 
     goldChart.update();
     document.getElementById("chartStatus").textContent =
